@@ -43,7 +43,7 @@ class BILog:
                         '#size': 'size',
                         '#etag': 'etag',
                         '#op': 'op',
-                        '#ts': 'ts',
+                        '#ts': 'timestamp',
                         },
                     ExpressionAttributeValues={
                         ':bucket': bucket,
