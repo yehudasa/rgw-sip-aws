@@ -1,6 +1,8 @@
 from env import *
 from db import *
 
+from tools import ceph_str_hash_linux
+
 
 def dup_table_settings_cb():
     return {
@@ -28,8 +30,8 @@ def dup_table_settings_cb():
 
 class DupLog:
     def __init__(self):
-        self.dbtable = get_table(obj_order_table, dup_table_settings_cb)
-        logger.info("Table %s status: %s" % (obj_order_table, self.dbtable.table_status))
+        self.dbtable = get_table(env_params.obj_order_table, dup_table_settings_cb)
+        logger.info("Table %s status: %s" % (env_params.obj_order_table, self.dbtable.table_status))
     
         
     def check_seq(self, bucket, obj_key, obj_seq):

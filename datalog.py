@@ -25,15 +25,15 @@ def datalog_table_settings_cb():
 class DataLog:
     def __init__(self, bucket, bucket_shard_id, bucket_num_shards, timestamp):
         self.bucket = bucket
-        self.bucket_shard_id = bucket_shard_id;
-        self.bucket_num_shards = bucket_num_shards;
-        self.timestamp = timestamp;
+        self.bucket_shard_id = bucket_shard_id
+        self.bucket_num_shards = bucket_num_shards
+        self.timestamp = timestamp
 
-        shard_id = ceph_str_hash_linux(bucket) % datalog_num_shards
+        shard_id = ceph_str_hash_linux(bucket) % env_params.datalog_num_shards
 
         self.table_name = 'datalog.%d' % shard_id
 
-        self.dbtable = get_table(self.table_name, bilog_table_settings_cb)
+        self.dbtable = get_table(self.table_name, datalog_table_settings_cb)
         logger.info("Table %s status: %s" % (self.table_name, self.dbtable.table_status))
 
     def store_entry(self, datalog_key):
@@ -62,7 +62,7 @@ class DataLog:
         return True
 
     def store_entries(self):
-        ts_period = datalog_window_size
+        ts_period = env_params.datalog_window_size
 
         ts_half = ts_period / 2
 
@@ -71,7 +71,7 @@ class DataLog:
         for delta in (ts_half, ts_period):
             ts = int(t + delta - t % ts_half)
 
-            key = hex(ts).lstrip('0x').zfill(16)
+            key = hex(ts).lstrip('0x').zfill(16) + '_' + self.bucket + '_' + str(self.bucket_shard_id)
 
             self.store_entry(key)
 

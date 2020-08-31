@@ -3,8 +3,9 @@ import json
 from env import *
 from db import *
 
-from bilog import *
 from duplog import *
+from bilog import *
+from datalog import *
 
 
 def handle_s3_event(fifo_seq, group_id, event):
@@ -35,11 +36,18 @@ def handle_s3_event(fifo_seq, group_id, event):
     fifo_seq_dec = int(fifo_seq)
     bilog_key = hex(fifo_seq_dec).lstrip('0x').rstrip('L').zfill(20)
     
-    bilog = BILog(bucket, group_id)
+    shard_id = ceph_str_hash_linux(obj_key) % env_params.bilog_num_shards
     
-    bilog.store_entry(bilog_key,
+    bilog = BILog(bucket, shard_id)
+    
+    success = bilog.store_entry(bilog_key,
                       bucket, obj_key, obj_size,
                       etag, op, timestamp)
+    
+    if success:
+        dl = DataLog(bucket, shard_id, env_params.bilog_num_shards, timestamp)
+        
+        dl.store_entries()
     
 
 def lambda_handler(event, context):

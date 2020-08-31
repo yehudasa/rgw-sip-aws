@@ -1,7 +1,7 @@
 import boto3
 from env import *
 
-dynamodb = boto3.resource('dynamodb', endpoint_url=dynamodb_url)
+dynamodb = boto3.resource('dynamodb')
 
 tables = {}
 
